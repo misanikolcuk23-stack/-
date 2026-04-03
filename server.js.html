@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Анонімний чат</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #111;
+            color: white;
+        }
+
+        input {
+            padding: 10px;
+            width: 60%;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #222;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>💬 Анонімний чат</h1>
+
+<input id="msg" placeholder="Напиши повідомлення...">
+<button onclick="send()">Відправити</button>
+
+<ul id="chat"></ul>
+
+<script>
+async function send() {
+    let text = document.getElementById("msg").value;
+
+    await fetch("/send", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text})
+    });
+
+    document.getElementById("msg").value = "";
+}
+
+async function load() {
+    let res = await fetch("/messages");
+    let data = await res.json();
+
+    let chat = document.getElementById("chat");
+    chat.innerHTML = "";
+
+    data.forEach(m => {
+        let li = document.createElement("li");
+        li.innerText = m;
+        chat.appendChild(li);
+    });
+}
+
+setInterval(load, 1000);
+</script>
+
+</body>
+</html>
