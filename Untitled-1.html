@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Анонімний чат</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f0f0;
+        }
+
+        #messages {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            max-width: 60%;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            clear: both;
+        }
+
+        .me {
+            background: #4CAF50;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .other {
+            background: #ddd;
+            margin-right: auto;
+        }
+
+        form {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Анонімний чат</h2>
+
+<ul id="messages"></ul>
+
+<form id="form">
+    <input id="input" autocomplete="off" placeholder="Напиши повідомлення..." />
+    <button>Відправити</button>
+</form>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const messages = document.getElementById("messages");
+
+    // створюємо випадковий ID для користувача
+    const myId = Math.random().toString(36).substring(2, 9);
+
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        if (input.value) {
+            socket.emit("chat message", {
+                text: input.value,
+                id: myId
+            });
+            input.value = "";
+        }
+    });
+
+    socket.on("chat message", function(msg) {
+        const li = document.createElement("li");
+
+        li.textContent = msg.text;
+
+        // перевірка: моє чи чуже
+        if (msg.id === myId) {
+            li.classList.add("me");
+        } else {
+            li.classList.add("other");
+        }
+
+        messages.appendChild(li);
+    });
+</script>
+
+</body>
+</html>
